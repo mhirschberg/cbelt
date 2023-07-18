@@ -1,0 +1,22 @@
+[source_db_config]
+# Configure the source DB connection
+# For example, to load data from BigQuery:
+# db=bigquery://<your project URL>
+db=<db>://<url>
+# For example, BigQuery Dataset.Table notation
+table=<dataset>.<table>
+
+[cb_config]
+# Couchbase cluster connection information
+endpoint=<CB connect URL>
+username=<cbuser>
+password=<cbpassword>
+bucket_name=<bucket name>
+# Change scope and collection name to your values or leave it to defaults
+scope_name=_default
+collection_name=_default
+
+# Threads configuratiom, adjust to your needs.
+[threads_config]
+BATCH_SIZE=100
+THREADS=10
