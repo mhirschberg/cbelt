@@ -11,7 +11,7 @@ from couchbase.exceptions import CouchbaseException, ScopeNotFoundException, Col
 import pandas as pd
 import sqlalchemy as sa
 
-# Read the comfig from file, should be any given
+# Read the config from file, should be any given
 # This also gives you an idea which variables are required, but might be provided in a different way
 if len(sys.argv) > 1:
     try:
