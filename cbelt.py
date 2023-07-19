@@ -3,6 +3,7 @@
 import sys
 import configparser
 from datetime import timedelta
+from uuid import uuid4
 from concurrent.futures import ThreadPoolExecutor
 from couchbase.cluster import Cluster
 from couchbase.options import ClusterOptions
@@ -79,6 +80,8 @@ def process_data(data):
     docs = {}
     for item in data:
         # Generate a composite document ID - change as you need
+        # Or uncomment the UUID key generation
+        #doc_id = str(uuid4())
         try:
             doc_id = f"{item['storeno']}::{item['businessdate']}::{item['workstationid']}::{item['cashierno']}::{item['transactionsequencenumber']}"
         except KeyError as e:
