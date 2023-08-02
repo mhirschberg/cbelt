@@ -3,6 +3,7 @@ import sqlalchemy as sa
 import logging as log
 import pandas as pd
 import cbelt.lib.utils as utl
+import os
 
 cfg = {}
 """cfguration dictionary"""
@@ -11,6 +12,7 @@ total_records = 0
 engine = None
 """SQLAlchemy datareader engine"""
 
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "/home/ec2-user/key/care.json"
 
 def init(config):
     """Initialise module."""

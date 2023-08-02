@@ -3,19 +3,16 @@
         {
             "reader_type": "rdbms",
             "reader_url": "bigquery://",
-
             "writer_type": "couchbase",
-            "writer_url": "couchbases://XXXXXXX:XXXXXXX@localhost/test",
-
-            "subjobs":[
+            "writer_url": "couchbases://cbelt:yMFB4CKzL7wb2BD!@svc-dqis-node-002.btrqzxlljnpqvll.cloud.couchbase.com/projects",
+            "subjobs": [
                 {
-                    "reader_query": "select * from `XXXXXXXXXXXXXXXXXXX` limit 15000",
+                    "reader_query": "select * from `gcp-ro-integration-uppmo-dev.ImportCollection._TransactionsPOS_202303` limit 15000",
                     "reader_key": "{row['storeno']}::{row['businessdate']}::{row['workstationid']}::{row['cashierno']}::{row['transactionsequencenumber']}",
                     "reader_chunksize": 500,
-
-                    "writer_scope":"care",
-                    "writer_collection":"care",
-                    "writer_threads":10
+                    "writer_scope": "care",
+                    "writer_collection": "care",
+                    "writer_threads": 10
                 }
             ]
         }
