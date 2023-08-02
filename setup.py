@@ -10,6 +10,7 @@ setup(
         "couchbase",
         "pandas",
         "SQLAlchemy",
+        "pymongo",
         "tqdm",
         "google-cloud-bigquery",
         "google-cloud-bigquery-storage",

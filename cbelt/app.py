@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """Couchbase ELT entry point"""
 import json
 import logging as log
@@ -49,7 +50,7 @@ def cli(config_filename):
                 writer.write(subjob, docs)
                 pbar.update(n=writer.processed_records - pbar.n)
 
-    log("Completed.")
+    log.info("Completed.")
 
 
 if __name__ == "__main__":
