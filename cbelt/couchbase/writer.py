@@ -6,15 +6,10 @@ import threading
 from couchbase.cluster import Cluster
 from couchbase.options import ClusterOptions
 from couchbase.auth import PasswordAuthenticator
-from couchbase.exceptions import (
-    BucketNotFoundException,
-    CollectionNotFoundException,
-)
 import cbelt.lib.utils as utl
 import sqlalchemy as sa
+import time
 
-cfg = {}
-"""Configuration dictionary"""
 lock = threading.Lock()
 """Semaphor """
 processed_records = 0
@@ -25,31 +20,36 @@ bucket = None
 """Couchbase bucket"""
 collection = None
 """Couchbase collection"""
-url = None
-"""Couchbase SQLAlchemy like URL"""
+subjob = None
+"""Subjob Configuration"""
+key_expression: str = ""
+"""Subjob Configuration"""
 
 
 def init(config):
     """Initialise object."""
-    global cfg, cluster, url, bucket
+    global cfg, cluster, bucket
     cfg = config
 
     url = sa.engine.make_url(utl.get_dict_env(cfg, "writer_url"))
 
     log.info(f"Connecting <{config['writer_type']}> writer...")
-    cluster = connect()
-    bucket = get_bucket(url.database)
+    cluster = connect(url)
+    bucket = cluster.bucket(url.database)
 
 
-def init_subjob(subjob):
+def init_subjob(sub_job):
     """Init subjob."""
-    global total_records, cluster, collection, lock, bucket
+    global total_records, collection, bucket, subjob, key_expression
 
+    subjob = sub_job
     scope = bucket.scope(subjob["writer_scope"])
     collection = scope.collection(subjob["writer_collection"])
+    total_records = 0
+    key_expression = f"f\"{subjob['writer_key']}\""
 
 
-def connect():
+def connect(url):
     """Return datasource engine."""
     auth = PasswordAuthenticator(url.username, url.password)
     options = ClusterOptions(auth)
@@ -60,53 +60,35 @@ def connect():
 
 def write(subjob, docs):
     """Write data in multithread mode."""
+    """Split document list into the list of lists for threading"""
+    docs_map = []
+    map_size = round(len(docs) / subjob["writer_threads"])
+    docs_map = [docs[i : i + map_size] for i in range(0, len(docs), map_size)]
+
+    # start multi-threaded transfer
     with ThreadPoolExecutor(max_workers=subjob["writer_threads"]) as executor:
-        executor.map(upsert_documents, docs)
+        executor.map(upsert_document, docs_map)
 
 
-def upsert_documents(docs):
+def upsert_document(docs):
     """Save documents into Couchbase."""
-    global lock, processed_records
+    global lock, processed_records, key_expression
+    # doc_id = eval(key_expression)
+    # collection.upsert(doc_id,doc)
+
+    # log.info(doc_id)
+    # time.sleep(10)
     try:
-        collection.upsert_multi(docs)
+        # Transform list of documents to list of ids+docs
+        multi_doc = {}
+        for doc in docs:
+            # calculate document UUID
+            multi_doc_id = eval(key_expression)
+            multi_doc[multi_doc_id] = doc
+
+        # upsert transformed list
+        collection.upsert_multi(multi_doc)
         with lock:
             processed_records += len(docs)
     except Exception as e:
         print(f"Failed to upsert batch: {str(e)}")
-
-
-def get_bucket(bucket_name):
-    """Return or create bucket if needed."""
-    global cluster, bucket
-    try:
-        bucket = cluster.bucket(bucket_name)
-        log.info(f"Bucket '{bucket_name}' already exists.")
-        return bucket
-    except BucketNotFoundException:
-        log.info(f"Bucket '{bucket_name}' does not exist. Creating...")
-        try:
-            bucket = cluster.buckets().create_bucket(url.database, None)
-            log.info(f"Bucket '{bucket_name}' created successfully.")
-            return bucket
-        except Exception as e:
-            log.info(f"Error creating bucket '{bucket_name}': {e}")
-            raise
-
-
-def get_collection(scope, collection_name, collection_settings=None):
-    """Return or create collection if needed."""
-    try:
-        collection = scope.collection_create(
-            collection_name, collection_settings
-        )
-        print(f"Collection '{collection_name}' already exists.")
-        return collection
-    except CollectionNotFoundException:
-        log.info(f"Collection '{collection_name}' does not exist. Creating...")
-        try:
-            scope.collection_create(collection_name, collection_settings)
-            log.info(f"Collection '{collection_name}' created successfully.")
-            return scope.collection(collection_name)
-        except Exception as e:
-            log.info(f"Error creating collection '{collection_name}': {e}")
-            raise

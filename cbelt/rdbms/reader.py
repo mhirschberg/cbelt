@@ -12,7 +12,7 @@ total_records = 0
 engine = None
 """SQLAlchemy datareader engine"""
 
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "/home/ec2-user/key/care.json"
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "/home/ec2-user/key/care.key"
 
 def init(config):
     """Initialise module."""
@@ -35,6 +35,7 @@ def connect():
     return sa.create_engine(
         utl.get_dict_env(cfg, "reader_url"),
         execution_options=dict(stream_results=True),
+        arraysize=5000,
     )
 
 
@@ -47,26 +48,10 @@ def get_total_records(subjob):
 
 def read(subjob):
     """Read and yelds reader data as documents."""
-    """Prepare key expression for a dynamic execution"""
-    key = f"f\"{subjob['reader_key']}\""
-
     for chunk in pd.read_sql(
         subjob["reader_query"], engine, chunksize=subjob["reader_chunksize"]
     ):
-        # Initialise resulting record batch
-        docs = []
-        for item in chunk.itertuples(index=False, name="Row"):
-            # Initialise dictionary to save dataframe row
-            doc = {}
-            row = item._asdict()
-
-            # Generate a composite row ID
-            doc_id = eval(key)
-
-            # Add row document to the dictionary
-            doc[doc_id] = row
-
-            # Add the document to the batch
-            docs.append(doc)
-        yield docs
-    return
+        # fix timestamps columns for JSON conversion
+        chunk = utl.timstamp_columns_to_string(chunk)
+        
+        yield chunk.to_dict('records')

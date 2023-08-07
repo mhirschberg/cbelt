@@ -5,6 +5,8 @@ import logging as log
 import tqdm
 import click
 from importlib import import_module
+from threading import Thread
+
 
 log.basicConfig(format="%(levelname)s:%(message)s", level=log.INFO)
 
@@ -25,12 +27,6 @@ def cli(config_filename):
 
     # Iterate through the job definitions
     for job in config["jobs"]:
-        # Define and import reader reading module
-        reader_module_name = f"cbelt.{job['reader_type']}.reader"
-
-        log.info(f"Using reader module '{reader_module_name}'...")
-        reader = import_module(reader_module_name)
-        reader.init(job)
 
         # Define and import writer module
         writer_module_name = f"cbelt.{job['writer_type']}.writer"
@@ -38,6 +34,12 @@ def cli(config_filename):
         log.info(f"Using writer module '{writer_module_name}'...")
         writer = import_module(writer_module_name)
         writer.init(job)
+
+        # Define and import reader reading module
+        reader_module_name = f"cbelt.{job['reader_type']}.reader"
+        log.info(f"Using reader module '{reader_module_name}'...")
+        reader = import_module(reader_module_name)
+        reader.init(job)    
 
         for subjob in job["subjobs"]:
             # Init progress bar
@@ -49,6 +51,7 @@ def cli(config_filename):
             for docs in reader.read(subjob):
                 writer.write(subjob, docs)
                 pbar.update(n=writer.processed_records - pbar.n)
+                #pbar.update(n= 10000)
 
     log.info("Completed.")
 
