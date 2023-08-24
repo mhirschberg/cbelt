@@ -5,8 +5,9 @@ import logging as log
 import tqdm
 import click
 from importlib import import_module
-from threading import Thread
+import sys
 
+print(sys.path)
 
 log.basicConfig(format="%(levelname)s:%(message)s", level=log.INFO)
 

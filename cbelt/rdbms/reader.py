@@ -12,7 +12,7 @@ total_records = 0
 engine = None
 """SQLAlchemy datareader engine"""
 
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "/home/ec2-user/key/care.key"
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "/home/user/key/care.key"
 
 def init(config):
     """Initialise module."""
@@ -51,6 +51,7 @@ def read(subjob):
     for chunk in pd.read_sql(
         subjob["reader_query"], engine, chunksize=subjob["reader_chunksize"]
     ):
+        #print(chunk)
         # fix timestamps columns for JSON conversion
         chunk = utl.timstamp_columns_to_string(chunk)
         

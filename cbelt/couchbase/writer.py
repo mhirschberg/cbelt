@@ -9,6 +9,7 @@ from couchbase.auth import PasswordAuthenticator
 import cbelt.lib.utils as utl
 import sqlalchemy as sa
 import time
+import uuid
 
 lock = threading.Lock()
 """Semaphor """
@@ -62,7 +63,7 @@ def write(subjob, docs):
     """Write data in multithread mode."""
     """Split document list into the list of lists for threading"""
     docs_map = []
-    map_size = round(len(docs) / subjob["writer_threads"])
+    map_size = round(len(docs) / subjob["writer_threads"] / 3)
     docs_map = [docs[i : i + map_size] for i in range(0, len(docs), map_size)]
 
     # start multi-threaded transfer
