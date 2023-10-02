@@ -48,7 +48,6 @@ def get_total_records(subjob, engine):
     total_documents = engine.count_documents({})
     return total_documents
 
-
 def read(subjob):
     """Read and yelds reader data as documents."""
     """Prepare key expression for a dynamic execution"""
@@ -57,9 +56,7 @@ def read(subjob):
     last_id = None
     
     chunk_size = subjob['reader_chunksize']
-    
-    key = f"f\"{subjob['reader_key']}\""
-    
+        
     while True:
         # Create an empty list to store the documents for this chunk
         docs = []
@@ -69,26 +66,18 @@ def read(subjob):
         else:
             cursor = engine.find().limit(chunk_size)
 
-        for item in cursor:
+        for nr, item in enumerate(cursor):
             # Store each document in a dictionary
             doc = {}
             last_id = item['_id']
-            
-            # Generate a composite row ID
-            doc_id = eval(key)
 
             # Add row document to the dictionary
-            doc[doc_id] = dict(item)
-            doc[doc_id].pop('_id')
+            doc[nr] = item
+            doc[nr].pop('_id')
             # Add the document to the batch
             docs.append(doc)
-            print (docs)
-            exit (0)
         
         if not docs:
             break
         
-        yield docs            
-
-
-        
+        yield docs
