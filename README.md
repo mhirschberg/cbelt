@@ -40,7 +40,7 @@ Upon the start `cbelt` is going to execute the following steps:
 
 1. open a configuration file 
 2. read `source` and `targets` sections
-3. establishe connection to the source and target systems
+3. establish connection to the source and target systems
 4. read the data from the source as configured in form of pandas dataframes
 5. write the data into the target Couchbase database using *bulk* methods
 
