@@ -1,6 +1,6 @@
 # Couchbase ELT Tool (cbelt)
 
-This repository contains Couchbase ELT Tool (aka cbelt) allowing to import data from various source systems into Couchbase with ease.
+This repository contains Couchbase ELT Tool (aka `cbelt`) allowing to import data from various source systems into Couchbase with ease.
 
 # Installation
 
@@ -8,7 +8,7 @@ Installation is pretty easy and consists of following steps(we assuming you have
 
 1. clone the repository
 2. switch into the cloned repo directory
-3. install setuptols if needed by issuing 
+3. install `setuptols` if needed by issuing 
 
 ```bash
 pip install --upgrade pip setuptools wheel
@@ -20,15 +20,15 @@ pip install --upgrade pip setuptools wheel
 pip install .
 ```
 
-After the installation you have to be able to make a test runby issuing  *cbelt* in your command line
+After the installation you have to be able to make a test runby issuing  `cbelt` in your command line
 
 # Configuration
 
-*cbelt* is configured via json configuration files placed under *config* directory in the root of the project. Several configuration examples for different kinds of sources are already included into the repository. Please check comments provided in example configuration files for a further configuration details
+`cbelt` is configured via json configuration files placed under *config* directory in the root of the project. Several configuration examples for different kinds of sources are already included into the repository. Please check comments provided in example configuration files for a further configuration details
 
 # Execution 
 
-To start a *cbelt* with a particular configuration you have to issue *cbelt* command providing relative or absolute path to a desired configuration file. For example:
+To start a `cbelt` with a particular configuration you have to issue *cbelt* command providing relative or absolute path to a desired configuration file. For example:
 
 ```bash
 cbelt ./config/rdbms.json
@@ -36,10 +36,10 @@ cbelt ./config/rdbms.json
 
 # Principle of work 
 
-Upon the start *cbelt* follows followinf steps:
+Upon the start `cbelt` follows followinf steps:
 
 1. opens a configuration file 
-2. read *source* and *targets* sections
+2. read `source` and `targets` sections
 3. establishes connection to the source and target systems
 4. reads the data from the source as configured in form of pandas dataframes
 5. writes the data into the target Couchbase database using *bulk* methods
