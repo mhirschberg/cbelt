@@ -34,15 +34,15 @@ To start a `cbelt` with a particular configuration you have to issue *cbelt* com
 cbelt ./config/rdbms.json
 ```
 
-# Principle of work 
+# How it works 
 
-Upon the start `cbelt` follows followinf steps:
+Upon the start `cbelt` is going to execute the following steps:
 
-1. opens a configuration file 
+1. open a configuration file 
 2. read `source` and `targets` sections
-3. establishes connection to the source and target systems
-4. reads the data from the source as configured in form of pandas dataframes
-5. writes the data into the target Couchbase database using *bulk* methods
+3. establishe connection to the source and target systems
+4. read the data from the source as configured in form of pandas dataframes
+5. write the data into the target Couchbase database using *bulk* methods
 
 
 # License
