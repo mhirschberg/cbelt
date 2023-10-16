@@ -10,13 +10,13 @@ Installation is pretty easy and consists of following steps(we assuming you have
 2. switch into the cloned repo directory
 3. install setuptols if needed by issuing 
 
-```
-*pip install --upgrade pip setuptools wheel*
+```bash
+pip install --upgrade pip setuptools wheel
 ```
 
 4. install cbelt as a utility with 
 
-```
+```bash
 pip install .
 ```
 
@@ -24,13 +24,13 @@ After the installation you have to be able to make a test runby issuing  *cbelt*
 
 # Configuration
 
-*cbelt* is configured via json configuration files placed under *config* directory in the root of the project. Several configuration examples for different kinds of sources are alreaay included into the repository. Please check comments provided in example configuration files for a further configuration details
+*cbelt* is configured via json configuration files placed under *config* directory in the root of the project. Several configuration examples for different kinds of sources are already included into the repository. Please check comments provided in example configuration files for a further configuration details
 
 # Execution 
 
 To start a *cbelt* with a particular configuration you have to issue *cbelt* command providing relative or absolute path to a desired configuration file. For example:
 
-```
+```bash
 cbelt ./config/rdbms.json
 ```
 
