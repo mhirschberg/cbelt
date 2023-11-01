@@ -1,6 +1,8 @@
 """Contains some utils used over the project."""
 import os
 import pandas as pd
+from datetime import datetime, date
+
 
 
 def get_dict_env(dict_obj: dict, key: str, strict: bool = True):
@@ -22,3 +24,11 @@ def timstamp_columns_to_string(df):
             df[col] = df[col].astype(str)
 
     return df
+
+def dict_timestamp_to_string(dc):
+    """Convert timestamp columns in dict to string."""
+    for k, v in dc.items():
+        if isinstance(dc[k], datetime) or isinstance(dc[k], date):
+            dc[k] = dc[k].strftime("%d.%m.%Y, %H:%M:%S")
+
+    return dc

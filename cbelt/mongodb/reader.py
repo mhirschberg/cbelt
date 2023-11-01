@@ -78,9 +78,10 @@ def read(subjob):
             doc_id = eval(key)
 
             # Add row document to the dictionary
-            doc[doc_id] = dict(item)
+            doc[doc_id] = utl.dict_timestamp_to_string(dict(item))
             doc[doc_id].pop('_id')
             # Add the document to the batch
+
             docs.append(doc)
             print (docs)
             exit (0)
