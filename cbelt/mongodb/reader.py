@@ -2,8 +2,32 @@
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 from bson.objectid import ObjectId
+import bson
+import json
 import logging as log
 import cbelt.lib.utils as utl
+
+
+def decode_value(value):
+    if isinstance(value, dict):
+        # Check if the value is a dictionary with a single key starting with '$'
+        if len(value) == 1 and list(value.keys())[0].startswith('$'):
+            return list(value.values())[0]
+        else:
+            # If the value is another dictionary, recursively decode it
+            return {key: decode_value(val) for key, val in value.items()}
+    elif isinstance(value, list):
+        # If the value is a list, recursively decode each element
+        return [decode_value(item) for item in value]
+    elif isinstance(value, (int, float)):
+        # If the value is a numerical type, keep it as is
+        return value
+    else:
+        # Otherwise, convert the value to string
+        return str(value)
+
+def decode_dictionary(encoded_dict):
+    return {key: decode_value(value) for key, value in encoded_dict.items()}
 
 cfg = {}
 """cfguration dictionary"""
@@ -11,7 +35,6 @@ total_records = 0
 """Total number of documents in resultset"""
 engine = None
 """MongoDB datareader engine"""
-
 
 def init(config):
     """Initialise module."""
@@ -61,17 +84,36 @@ def read(subjob):
         # Create an empty list to store the documents for this chunk
         docs = []
 
+        
         if last_id:
-            cursor = engine.find({'_id': {'$gt': last_id}}).limit(chunk_size)
+            my_cursor = engine.find({'_id': {'$gt': last_id}}).limit(chunk_size)
         else:
-            cursor = engine.find().limit(chunk_size)
+            my_cursor = engine.find().limit(chunk_size)
+
+
+        ''' 
+        # Right now we're keeping the extended JSON as-is. 
+        # But we could transform to a legacy JSON using this encoder (right now works with datetime and decimal128)
+        class myJSONencoder(json.JSONEncoder):
+            import datetime
+            from bson.decimal128 import Decimal128
+            def default(self, z):
+                if isinstance(z, datetime.datetime):
+                    return (str(z.isoformat()))
+                elif isinstance(z, Decimal128):
+                    return round((float(str(z))), 2)
+                
+                else:
+                    return super().default(z)
+        '''
+
+        cursor = json.loads(bson.json_util.dumps(my_cursor))
 
         for nr, item in enumerate(cursor):
             # Store each document in a dictionary
             doc = {}
             last_id = item['_id']
 
-            # Add row document to the dictionary
             doc[nr] = item
             doc[nr].pop('_id')
             # Add the document to the batch
@@ -79,5 +121,5 @@ def read(subjob):
         
         if not docs:
             break
-        
+
         yield docs
