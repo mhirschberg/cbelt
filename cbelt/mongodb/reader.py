@@ -2,7 +2,7 @@
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 from bson.objectid import ObjectId
-import bson
+import bson.json_util
 import json
 import logging as log
 import cbelt.lib.utils as utl
