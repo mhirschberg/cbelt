@@ -1,0 +1,27 @@
+{
+    "jobs": [
+        {
+            "reader_type": "mongodb",
+            "reader_url": "mongodb+srv://superadmin:SuperPassword@cluster42.fake.mongo.net/?retryWrites=true&w=majority",
+            "mongo_db": "superb",
+            "default_writer_threads":10,
+            "default_writer_key": "{doc['_id']}",
+            "default_writer_scope":"SuperScope",
+            "writer_type": "couchbase",
+            "writer_url": "couchbases://superoot:MegaPassword@cb.sample.fake.cloud.couchbase.com/superdb",
+
+            "subjobs":[
+                {
+                    "mongo_collection": "SuperCollection1",
+                    "writer_collection":"MegaCollection1"
+                },
+                {
+                    "mongo_collection": "SuperCollection2",
+                    "writer_collection":"MegaCollection2",
+                    "writer_key": "{doc['my_key']}",
+                    "default_writer_scope":"SuperScope2"
+                }
+            ]
+        }
+    ]
+}
