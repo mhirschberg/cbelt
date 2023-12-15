@@ -2,6 +2,19 @@
 import os
 import pandas as pd
 
+def nvl_dict(dict_to_check, key_to_check, value_if_null):
+    """Return dict_to_check[key_to_check] if set, else value_if_null"""
+    try:
+        return dict_to_check[key_to_check]
+    except Exception:
+        return value_if_null
+
+def nvl(value_to_check, value_if_null):
+    """Return 'value_to_check' if it is set and 'value_if_null' else"""
+    if value_to_check:
+        return value_to_check
+    else:
+        return value_if_null
 
 def get_dict_env(dict_obj: dict, key: str, strict: bool = True):
     """Return value defined by key if exists or key-named end variable."""

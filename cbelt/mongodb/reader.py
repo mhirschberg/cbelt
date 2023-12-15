@@ -7,7 +7,7 @@ import json
 import logging as log
 import cbelt.lib.utils as utl
 
-
+'''
 def decode_value(value):
     if isinstance(value, dict):
         # Check if the value is a dictionary with a single key starting with '$'
@@ -28,6 +28,7 @@ def decode_value(value):
 
 def decode_dictionary(encoded_dict):
     return {key: decode_value(value) for key, value in encoded_dict.items()}
+'''
 
 cfg = {}
 """cfguration dictionary"""
@@ -35,6 +36,8 @@ total_records = 0
 """Total number of documents in resultset"""
 engine = None
 """MongoDB datareader engine"""
+my_collection = None
+"""Working current MongoDB collection"""
 
 def init(config):
     """Initialise module."""
@@ -47,8 +50,13 @@ def init(config):
 
 def init_subjob(batch):
     """Init batch."""
+   # Select your collection
+    global my_collection
+    my_collection = engine[batch['mongo_collection']]
+
     global total_records
-    total_records = get_total_records(batch, engine)
+    
+    total_records = get_total_records(batch, my_collection)
     log.info(f"Total records in batch to read: {total_records}")
 
 
@@ -60,65 +68,48 @@ def connect():
     # Select your database
     my_db = client[cfg['mongo_db']]
 
-    # Select your collection
-    my_collection = my_db[cfg['mongo_collection']]
-
-    return my_collection
+    return my_db
 
 
-def get_total_records(subjob, engine):
+def get_total_records(subjob, my_collection):
     """Return total dataset record count."""
-    total_documents = engine.count_documents({})
+    total_documents = my_collection.count_documents({})
     return total_documents
 
 def read(subjob):
     """Read and yelds reader data as documents."""
     """Prepare key expression for a dynamic execution"""
     # Initialize the last_id to 0
-
+    default_reader_chunksize = 1000
+    global my_collection
     last_id = None
     
-    chunk_size = subjob['reader_chunksize']
+    try: 
+        chunk_size = subjob['reader_chunksize']
+    except:
+        chunk_size = default_reader_chunksize
+    
         
     while True:
         # Create an empty list to store the documents for this chunk
         docs = []
-
         
         if last_id:
-            my_cursor = engine.find({'_id': {'$gt': last_id}}).limit(chunk_size)
+            my_cursor = my_collection.find({'_id': {'$gt': last_id}}).limit(chunk_size)
         else:
-            my_cursor = engine.find().limit(chunk_size)
-
-
-        ''' 
-        # Right now we're keeping the extended JSON as-is. 
-        # But we could transform to a legacy JSON using this encoder (right now works with datetime and decimal128)
-        class myJSONencoder(json.JSONEncoder):
-            import datetime
-            from bson.decimal128 import Decimal128
-            def default(self, z):
-                if isinstance(z, datetime.datetime):
-                    return (str(z.isoformat()))
-                elif isinstance(z, Decimal128):
-                    return round((float(str(z))), 2)
-                
-                else:
-                    return super().default(z)
-        '''
+            my_cursor = my_collection.find().limit(chunk_size)
 
         cursor = json.loads(bson.json_util.dumps(my_cursor))
 
-        for nr, item in enumerate(cursor):
+        for item in cursor:
             # Store each document in a dictionary
-            doc = {}
+            # And replace ObjectId by its value in the field "_id"            
             last_id = item['_id']
+            id_str = dict(last_id)
+            item['_id'] = id_str['$oid']
 
-            doc[nr] = item
-            doc[nr].pop('_id')
-            # Add the document to the batch
-            docs.append(doc)
-        
+            docs.append(item)
+            
         if not docs:
             break
 

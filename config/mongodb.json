@@ -2,22 +2,20 @@
     "jobs": [
         {
             "reader_type": "mongodb",
-            "reader_url": "mongodb+srv://mongo_db_user:SuperMongoPassword!987654321@cluster10.url.mongodb.net/?retryWrites=true&w=majority",
-            "mongo_db": "demo_db",
-            "mongo_collection": "demo_collection",
+            "reader_url": "mongodb+srv://dbuser:Sobaka!123@cluster0.u9ut8cb.mongodb.net/?retryWrites=true&w=majority",
+            "mongo_db": "snnhsr",
+            "default_writer_threads":10,
+            "default_writer_key": "{doc['_id']}",
+            "default_writer_scope":"AmaSone",
+            "default_writer_collection":"Events",
 
             "writer_type": "couchbase",
-            "writer_url": "couchbases://dbuser:SuperSecretPassword!123456789@my.cluster.cloud.couchbase.com/my_bucket",
+            "writer_url_hirsch": "couchbases://dbuser:Sobaka!123@cb.y0zokknuicjoeqat.cloud.couchbase.com/sennheiser",
+            "writer_url": "couchbases://dbuser:Sobaka!123@cb.z9zfanxvrbaunws.cloud.couchbase.com/sennheiser",
 
             "subjobs":[
-                {
-                    "reader_query": "",
-                    "reader_key": "{uuid.uuid4()}",
-                    "reader_chunksize": 1000,
-
-                    "writer_scope":"_default",
-                    "writer_collection":"_default",
-                    "writer_threads":10
+                {               
+                    "mongo_collection": "Events"                  
                 }
             ]
         }
